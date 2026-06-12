@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Корзина{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Your cart</h1>
+
+{% if cart %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Amount</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart %}
+                    {% with product=item.product %}
+                    <tr>
+                        <td>{{ product.name }}</td>
+                        <td>{{ item.price }} rub.</td>
+                        <td>
+                            <form method="post" action="{% url 'update_cart' product.id %}" class="d-inline">
+                                {% csrf_token %}
+                                <div class="input-group input-group-sm" style="width: 120px;">
+                                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control">
+                                    <button type="submit" class="btn btn-outline-secondary">Reset</button>
+                                </div>
+                            </form>
+                        </td>
+                        <td>{{ item.total_price }} руб.</td>
+                        <td>
+                            <a href="{% url 'remove_from_cart' product.id %}" class="btn btn-danger btn-sm">
+                                <i class="bi bi-trash"></i> Remove
+                            </a>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-end"><strong>Общая сумма:</strong></td>
+                    <td colspan="2"><strong>{{ cart.get_total_price }} руб.</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+    <div class="d-flex justify-content-between">
+        <a href="{% url 'catalog' %}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Continue purchase
+        </a>
+        <div>
+            <a href="{% url 'clear_cart' %}" class="btn btn-outline-danger">
+                <i class="bi bi-trash"></i> Clean cart
+            </a>
+            <button class="btn btn-success" disabled>
+                <i class="bi bi-credit-card"></i> Place an order
+            </button>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-cart-x display-1 text-muted"></i>
+        <h3 class="mt-3">Your cart is empty</h3>
+        <p class="text-muted">Add products from cataloge</p>
+        <a href="{% url 'catalog' %}" class="btn btn-primary mt-3">
+            Move to catalog
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
